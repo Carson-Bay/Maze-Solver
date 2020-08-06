@@ -1,0 +1,9 @@
+# Default ignored files
+/shelf/
+/.idea
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/vcs.xml
+/.idea/workspace.xml
+/A-Star.iml
+/testing.py
