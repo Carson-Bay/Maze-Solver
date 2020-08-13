@@ -1,6 +1,8 @@
 from PIL import Image
 import numpy as np
-
+from heapq import heapify, heappush, heappop
+import time
+import threading
 
 global yCord, xCord
 cardinalCost = 10
@@ -27,6 +29,24 @@ class NodeData:
         self.f = f_cost
         self.g = g_cost
 
+    def __eq__(self, other):
+        return (self.f, self.g, self.p, self.parent, self.direction) == (other.f, other.g, other.p, other.parent, other.direction)
+
+    def __ne__(self, other):
+        return (self.f, self.g, self.p, self.parent, self.direction) != (other.f, other.g, other.p, other.parent, other.direction)
+
+    def __lt__(self, other):
+        return (self.f, self.g, self.p, self.parent, self.direction) < (other.f, other.g, other.p, other.parent, other.direction)
+
+    def __le__(self, other):
+        return (self.f, self.g, self.p, self.parent, self.direction) <= (other.f, other.g, other.p, other.parent, other.direction)
+
+    def __gt__(self, other):
+        return (self.f, self.g, self.p, self.parent, self.direction) > (other.f, other.g, other.p, other.parent, other.direction)
+
+    def __ge__(self, other):
+        return (self.f, self.g, self.p, self.parent, self.direction) >= (other.f, other.g, other.p, other.parent, other.direction)
+
 
 # returns first white pixel in image
 def find_start():
@@ -49,11 +69,10 @@ def find_target():
 
 # Find H cost aka: distance to target disregarding "walls"
 def find_h_cost(x_initial, y_initial, x_final, y_final):
-
     x_change = x_final - x_initial
     y_change = y_final - y_initial
 
-    return cardinalCost * (x_change + y_change) + (diagonalCost - 2 * cardinalCost) * min(x_change, y_change)
+    return cardinalCost * (x_change + y_change)  # + (diagonalCost - 2 * cardinalCost) * min(x_change, y_change)
 
 
 def find_g_cost(node_object):
@@ -100,15 +119,16 @@ target = find_target()
 target_X, target_Y = target
 
 Open = []  # Set of nodes to be evaluated
+heapify(Open)  # turn list to a binary min tree
 Closed = []  # Set of nodes already evaluated
 
 # Add start node to Open
 Open.append(NodeData(start, None, None, find_h_cost(start_X, start_Y, target_X, target_Y), 0))
+startTime = time.perf_counter()
 
 while True:
     # Set current to node with lowest F cost, remove from open
-    current = min(Open, key=lambda x: x.f)
-    Open.pop(Open.index(current))
+    current = heappop(Open)
     Closed.append(current)
 
     if current.p == target:
@@ -127,7 +147,7 @@ while True:
             else:
                 w = False
 
-        if array[neighbor] == False or w:
+        if array[neighbor_x][neighbor_y] == False or w:
             continue
 
         if direction_of_neighbor(neighbor):
@@ -155,9 +175,9 @@ while True:
             neighbor_object.f = find_h_cost(neighbor_x, neighbor_y, target_X, target_Y) + find_g_cost(neighbor_object)
             neighbor_object.g = find_g_cost(neighbor_object)
             if neighbor_object not in Open:
-                Open.append(neighbor_object)
+                heappush(Open, neighbor_object)
 
-
+runtime = time.perf_counter() - startTime
 image = Image.open(maze).convert("RGB")
 array = np.array(image)
 Image.Image.close(image)
@@ -182,8 +202,9 @@ for i in range(pathLen):
     if current.p == start:
         break
     else:
-        print(current.parent.p)
         current = current.parent
+
+print(runtime)
 
 img = Image.fromarray(array)
 img.save(fileSave)
