@@ -4,17 +4,19 @@ from heapq import heapify, heappush, heappop
 import time
 import threading
 
-global yCord, xCord
+global yCord, xCord, current_X, current_Y
 cardinalCost = 10
-diagonalCost = 14
+diagonalCost = 22
 
 maze = str(input("Image Name: "))
 fileSave = str(input("Set New File Name: "))
+
 
 # load the image
 image = Image.open(maze).convert('1')
 # convert image to numpy array
 array = np.asarray(image)
+print(array)
 
 Image.Image.close(image)
 
@@ -90,7 +92,20 @@ def find_g_cost(node_object):
     return g_cost
 
 
-def direction_of_neighbor(neighbor_node):
+def find_lowest_f(node_list):
+    lowest_f_cost = node_list[0].f
+    test_node = node_list[0]
+    for node in node_list:
+        if node.f < lowest_f_cost:
+            lowest_f_cost = node.f
+            test_node = node
+    Open.pop(Open.index(test_node))
+    Closed.append(test_node)
+    return test_node
+
+
+def direction_of_neighbor(neighbor_node, current_node):
+    current_X, current_Y = current_node.p
     if ((current_X - 1, current_Y) == neighbor_node or
             (current_X - 1, current_Y) == neighbor_node or
             (current_X, current_Y - 1) == neighbor_node or
@@ -112,28 +127,10 @@ neighbors = lambda x, y: [(x2, y2) for x2 in range(x - 1, x + 2)
                               (0 <= x2 <= X) and
                               (0 <= y2 <= Y))]
 
-# Find Start and End
-start = find_start()
-start_X, start_Y = start
-target = find_target()
-target_X, target_Y = target
 
-Open = []  # Set of nodes to be evaluated
-heapify(Open)  # turn list to a binary min tree
-Closed = []  # Set of nodes already evaluated
-
-# Add start node to Open
-Open.append(NodeData(start, None, None, find_h_cost(start_X, start_Y, target_X, target_Y), 0))
-startTime = time.perf_counter()
-
-while True:
-    # Set current to node with lowest F cost, remove from open
-    current = heappop(Open)
-    Closed.append(current)
-
-    if current.p == target:
-        break
-    current_X, current_Y = current.p
+def calculate_node(current_node):
+    nodes = []
+    current_X, current_Y = current_node.p
 
     for neighbor in neighbors(current_X, current_Y):
         neighbor_x, neighbor_y = neighbor
@@ -150,7 +147,7 @@ while True:
         if array[neighbor_x][neighbor_y] == False or w:
             continue
 
-        if direction_of_neighbor(neighbor):
+        if direction_of_neighbor(neighbor, current_node):
             neighbor_cost = cardinalCost
         else:
             neighbor_cost = diagonalCost
@@ -170,19 +167,75 @@ while True:
             else:
                 w = False
 
-        if not w or current.g + neighbor_cost < neighbor_object.g:
-            neighbor_object.parent = current
+        if not w or current_node.g + neighbor_cost < neighbor_object.g:
+            neighbor_object.parent = current_node
             neighbor_object.f = find_h_cost(neighbor_x, neighbor_y, target_X, target_Y) + find_g_cost(neighbor_object)
             neighbor_object.g = find_g_cost(neighbor_object)
             if neighbor_object not in Open:
-                heappush(Open, neighbor_object)
+                nodes.append(neighbor_object)
+    return nodes
+
+
+# Find Start and End
+start = find_start()
+start_X, start_Y = start
+target = find_target()
+target_X, target_Y = target
+
+Open = []  # Set of nodes to be evaluated
+Closed = []  # Set of nodes already evaluated
+
+# Add start node to Open
+Open.append(NodeData(start, None, None, find_h_cost(start_X, start_Y, target_X, target_Y), 0))
+startTime = time.perf_counter()
+
+# Run first few iterations
+mazeSolved = False
+
+for i in range(0, 7):
+    current = find_lowest_f(Open)
+    if current.p == target:
+        mazeSolved = True
+        break
+    for node in calculate_node(current):
+        Open.append(node)
+
+# Check if Binary min heap or unordered list is faster depending on branching factor
+if mazeSolved is False:
+
+    averageDiversions = 3
+
+    if len(Open) + len(Closed) > averageDiversions * 8:
+        print("Used Binary Heap Tree")
+        heapify(Open)
+        while True:
+            current = heappop(Open)
+            Closed.append(current)
+            if current.p == target:
+                break
+            else:
+                for node in calculate_node(current):
+                    heappush(Open, node)
+
+    else:
+        print("Used Unordered List")
+        while True:
+            current = find_lowest_f(Open)
+            if current.p == target:
+                break
+            else:
+                for node in calculate_node(current):
+                    Open.append(node)
+
 
 runtime = time.perf_counter() - startTime
+
 image = Image.open(maze).convert("RGB")
 array = np.array(image)
 Image.Image.close(image)
 array.setflags(write=True)
 
+current = Open[0]
 for i in Closed:
     if i.p == target:
         current = i
@@ -203,6 +256,7 @@ for i in range(pathLen):
         break
     else:
         current = current.parent
+
 
 print(runtime)
 
