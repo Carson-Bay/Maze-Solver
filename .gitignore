@@ -7,3 +7,5 @@
 /.idea/workspace.xml
 /A-Star.iml
 /testing.py
+/ML Dataset Generation/mazeGenerationTests/
+/ML Dataset Generation/generatedMazes/
