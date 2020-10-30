@@ -2,6 +2,7 @@ from PIL import Image
 import random
 import numpy as np
 import time
+import pygame
 
 global size
 
@@ -33,6 +34,7 @@ def maze_template():
     size = int(input("Size of Mazes: "))
     if size % 2 == 0:
         size += 1
+
     image = np.array(Image.new("RGB", (size, size), color=0))
     mazeTemplate = np.copy(image)
     mazeTemplate.setflags(write=True)
@@ -99,6 +101,9 @@ def gen_maze(mazeNumber, openTemplate, mazeTemplate, size):
 
         if not open:
             break
+        surf = pygame.surfarray.make_surface(maze)
+        display.blit(surf, (0, 0))
+        pygame.display.update()
 
     img = Image.fromarray(maze, "RGB")
 
@@ -106,15 +111,10 @@ def gen_maze(mazeNumber, openTemplate, mazeTemplate, size):
 
 
 if __name__ == "__main__":
+    pygame.init()
 
     openTemp, mazeTemp, size = maze_template()
+    display = pygame.display.set_mode((size, size))
 
-    numberOfMazes = input("Number of Mazes to Gen: ")
-
-    startTime = time.perf_counter()
-
-    for i in range(0, int(numberOfMazes)):
-        gen_maze(i, openTemp, mazeTemp, size)
-
-    runTime = time.perf_counter() - startTime
-    print(runTime)
+    gen_maze("Visualized", openTemp, mazeTemp, size)
+    pygame.quit()
