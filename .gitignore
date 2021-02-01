@@ -1,11 +1,12 @@
 # Default ignored files
 /shelf/
 /.idea
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/vcs.xml
-/.idea/workspace.xml
-/A-Star.iml
+
+# Ignored Extensions
+*.iml
+*.xml
+
+# Testing
 /testing.py
 /ML Dataset Generation/mazeGenerationTests/
 /ML Dataset Generation/generatedMazes/

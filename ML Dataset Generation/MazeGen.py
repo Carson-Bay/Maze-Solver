@@ -103,7 +103,7 @@ def gen_maze(mazeNumber, openTemplate, mazeTemplate, size):
     img = Image.fromarray(maze, "RGB")
 
     #img.save("generatedMazes/maze{}.png".format(mazeNumber))
-    img.save("FYIC-MAZE3.png")
+    img.show()
 
 
 if __name__ == "__main__":
