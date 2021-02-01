@@ -208,7 +208,10 @@ def solve(mazeNumber, s):
     Image.Image.close(image)
     array.setflags(write=True)
 
-    current = Open[0]
+    try:
+        current = Open[0]
+    except IndexError:
+        print("Index error at {}".format(mazeNumber))
     for i in Closed:
         if i.p == target:
             current = i
