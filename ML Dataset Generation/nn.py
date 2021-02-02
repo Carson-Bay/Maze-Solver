@@ -16,7 +16,7 @@ b_h2_o = np.zeros((2601, 1))
 learn_rate = 0.01
 nr_correct = 0
 epochs = 3
-for epoch in range(epochs)
+for epoch in range(epochs):
     for img, s in zip(mazes, solves):
         img.shape += (1,)
         s.shape += (1,)

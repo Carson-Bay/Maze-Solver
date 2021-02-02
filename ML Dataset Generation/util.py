@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 from PIL import Image
+import pandas as pd
 
 
 def store_data(folder, mazeSize, numMazes):
@@ -30,6 +31,9 @@ def store_data(folder, mazeSize, numMazes):
     mazes = mazes.astype(int)
     solves = solves.astype(int)
 
+    pd.DataFrame(mazes).to_csv("mazes.csv")
+    pd.DataFrame(solves).to_csv("solves.csv")
+
     with open("data.pickle", "wb") as fout:
         pickle.dump(mazes, fout)
         pickle.dump(solves, fout)
@@ -40,3 +44,7 @@ def load_data(filename):
         mazes = pickle.load(fin)
         solves = pickle.load(fin)
     return mazes, solves
+
+
+if __name__ == "__main__":
+    store_data("generatedMazes", 51, 100000)
