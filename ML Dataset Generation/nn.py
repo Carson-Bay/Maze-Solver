@@ -15,8 +15,8 @@ b_h2_o = np.zeros((2601, 1))
 
 learn_rate = 0.01
 nr_correct = 0
-epochs = 60
-for epoch in range(epochs):
+epochs = 3
+for epoch in range(epochs)
     for img, s in zip(mazes, solves):
         img.shape += (1,)
         s.shape += (1,)
@@ -48,5 +48,5 @@ for epoch in range(epochs):
         b_i_h1 += -learn_rate * delta_h1
 
     # Show accuracy for this epoch
-    print(f"Acc: {round((nr_correct / mazes.shape[0]) * 100, 2)}%")
+    print(f"Epoch #{epoch} Acc: {(nr_correct / mazes.shape[0]) * 100}%")
     nr_correct = 0
