@@ -3,6 +3,7 @@
 /.idea
 
 # Ignored Extensions
+*.pickle
 *.iml
 *.xml
 
