@@ -46,5 +46,24 @@ def load_data(filename):
     return mazes, solves
 
 
+def score(y_true, y_pred):
+    unique, counts = np.unique(y_true, return_counts=True)
+    count_dict = dict(zip(unique, counts))
+    len_path = count_dict[1]
+
+    ind = np.argpartition(y_pred, -len_path)[-len_path:]
+
+
+def ReLu(x):
+    for i in range(len(x)):
+        if x[i] <= 0.0:
+            x[i] = 0.01 * x[i]
+    return x
+
+
+def sigmoid(x):
+    return 1/(1 + np.exp(-x))
+
+
 if __name__ == "__main__":
-    store_data("generatedMazes", 51, 100000)
+    load_data("data.pickle")
