@@ -3,6 +3,7 @@ import numpy as np
 import math
 from PIL import Image
 import pandas as pd
+import collections
 
 
 def store_data(folder, mazeSize, numMazes):
@@ -49,6 +50,8 @@ def load_data(filename):
 
 def score(y_true, y_pred):
     # Find how many nodes the path takes
+    y_true = y_true.flatten()
+    y_pred = y_pred.flatten()
     unique, counts = np.unique(y_true, return_counts=True)
     count_dict = dict(zip(unique, counts))
     len_path = count_dict[1]
@@ -56,25 +59,26 @@ def score(y_true, y_pred):
     # turn y_pred into dict sorted by key (predicted value). Has values as index before being sorted
 
     y_dict = {}
-    for i in range(y_pred):
+    for i in range(len(y_pred)):
         y_dict[y_pred[i]] = i
 
-    y_dict.sort()  # might be wrong syntax but I'm pretty sure this works
-    amount_before_done = []
+    y_dict = collections.OrderedDict(sorted(y_dict.items()))  # might be wrong syntax but I'm pretty sure this works
+    amount_correct = 0
     nodes_checked = 0
+    keys = y_dict.keys()
 
-    for i in y_dict:
+    for i in keys:
         nodes_checked += 1
-        if y_true(i) == 1:
-            amount_before_done += 1
-        if len(amount_before_done) >= len_path:
+        if y_true[y_dict[i]] == 1:
+            amount_correct += 1
+        if amount_correct >= len_path:
             break
 
     # percent as decimal of score where 100 is amount_checked == y_path and slowly deteriorates after that
 
     l = np.linspace(0, 1, num=(2601 - len_path))[::-1]
 
-    return l[amount_before_done - len_path]
+    return l[nodes_checked - len_path]
 
     # ind = np.argpartition(y_pred, -len_path)[-len_path:]
 
@@ -87,13 +91,24 @@ def ReLu(x):
 
 
 def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+    sig = 1 / (1 + np.exp(-x))
+    sig = np.minimum(sig, 0.9999)  # Set upper bound
+    sig = np.maximum(sig, 0.0001)  # Set lower bound
+    return sig
 
 
 def cross_entropy(y_true, y_pred):
-    return -np.sum((y_true * math.log10(y_pred))+(1 - y_true) * math.log10(1 - y_pred))
-
+    y_true = y_true.flatten()
+    y_pred = y_pred.flatten()
+    sum = 0
+    for i in range(len(y_pred)):
+        try:
+            sum += (y_true[i] * math.log10(y_pred[i])) + (1 - y_true[i]) * math.log10(1 - y_pred[i])
+        except ValueError:
+            print("Pred" + str(y_pred[i]))
+            print("True" + str(y_true[i]))
+    return -sum
 
 
 if __name__ == "__main__":
-    load_data("data.pickle")
+    print(score(np.asarray([1, 0, 1, 1, 0]), np.asarray([0.5, 0.2, 0.3, 0.9, 0.4])))

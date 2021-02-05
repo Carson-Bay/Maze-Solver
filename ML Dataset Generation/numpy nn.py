@@ -27,7 +27,7 @@ for epoch in range(epochs):
 
         # Cost / Error calculation
         # e = 1 / len(o) * np.sum((o - l) ** 2, axis=0)
-        acc_list.append(hamming_score(s, o))
+        acc_list.append(score(s, o))
 
         # Backpropagation output -> hidden (cost function derivative)
         delta_o = cross_entropy(s, o)
