@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+import math
 from PIL import Image
 import pandas as pd
 
@@ -63,6 +64,10 @@ def ReLu(x):
 
 def sigmoid(x):
     return 1/(1 + np.exp(-x))
+
+
+def cross_entropy(y_pred, y_true):
+    return -np.sum((y_true * math.log10(y_pred))+(1 - y_true) * math.log10(1 - y_pred))
 
 
 if __name__ == "__main__":

@@ -31,12 +31,12 @@ for epoch in range(epochs):
         # e = 1 / len(o) * np.sum((o - l) ** 2, axis=0)
         acc_list.append(hamming_score(s, o))
 
-        # Backpropagation output -> hidden2 (cost function derivative)
-        delta_o = o - s
+        # Backpropagation output -> hidden (cost function derivative)
+        delta_o = cross_entropy(o, s)
         w_h_o += -learn_rate * delta_o @ np.transpose(h)
         b_h_o += -learn_rate * delta_o
 
-        # Backpropagation hidden1 -> input (activation function derivative)
+        # Backpropagation hidden -> input (activation function derivative)
         delta_h = np.transpose(w_h_o) @ delta_o * (h * (1 - h))
         w_i_h += -learn_rate * delta_h @ np.transpose(img)
         b_i_h += -learn_rate * delta_h
