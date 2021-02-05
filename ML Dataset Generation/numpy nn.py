@@ -1,7 +1,5 @@
 from utils import *
 import numpy as np
-import sys
-
 
 """
 w = weights, b = bias, i = input, h1 = hidden1, h2 = hidden2, o = output, s = solve
@@ -32,7 +30,7 @@ for epoch in range(epochs):
         acc_list.append(hamming_score(s, o))
 
         # Backpropagation output -> hidden (cost function derivative)
-        delta_o = cross_entropy(o, s)
+        delta_o = cross_entropy(s, o)
         w_h_o += -learn_rate * delta_o @ np.transpose(h)
         b_h_o += -learn_rate * delta_o
 
@@ -42,5 +40,6 @@ for epoch in range(epochs):
         b_i_h += -learn_rate * delta_h
 
     # Show accuracy for this epoch
-    print(f"Epoch #{epoch} Acc: {np.mean(acc_list) * 100}%")
+    print(f"Epoch #{epoch} Mean Acc: {np.mean(acc_list) * 100}%  Highest Acc: {np.amax(acc_list) * 100}%"
+          f"  Lowest Acc: {np.amin(acc_list) * 100}%")
     acc_list = []
