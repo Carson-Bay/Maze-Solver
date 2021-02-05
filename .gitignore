@@ -1,6 +1,7 @@
 # Default ignored files
 /shelf/
 /.idea
+/venv
 
 # Ignored Extensions
 *.pickle
