@@ -38,8 +38,8 @@ def maze_template():
     mazeTemplate.setflags(write=True)
     openTemplate = []
 
-    for i in range(1, size-1, 2):
-        for j in range(1, size-1, 2):
+    for i in range(1, size - 1, 2):
+        for j in range(1, size - 1, 2):
             mazeTemplate[i, j] = (255, 255, 255)
             openTemplate.append(nodeData((i, j), None))
 
@@ -52,8 +52,8 @@ def gen_maze(mazeNumber, openTemplate, mazeTemplate, size):
     closed = []
     maze = np.copy(mazeTemplate)
 
-    start = random.randrange(1, size-1, 2)
-    end = random.randrange(1, size-1, 2)
+    start = random.randrange(1, size - 1, 2)
+    end = random.randrange(1, size - 1, 2)
 
     maze[0, start] = (255, 255, 255)
     maze[size - 1, end] = (255, 255, 255)
@@ -101,8 +101,12 @@ def gen_maze(mazeNumber, openTemplate, mazeTemplate, size):
             break
 
     img = Image.fromarray(maze, "RGB")
+    # img.save(r"C:\Users\cgbma\Documents\Untracked Files\Generated Mazes\11x11 100,000\maze{}.png".format(mazeNumber))
+    img.save("portfolio.png")
 
-    img.save("generatedMazes/maze{}.png".format(mazeNumber))
+    maze = np.int64(np.all(maze[:, :, :3] == 0, axis=2))
+
+    return maze.reshape(1, size ** 2)
 
 
 if __name__ == "__main__":

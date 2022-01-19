@@ -61,12 +61,10 @@ def gen_maze(mazeNumber, openTemplate, mazeTemplate, size):
     maze[size - 1, end] = (255, 255, 255)
 
     current = random.choice(open)
-    for node in open:
-        if node.p == current.p:
-            node.n = get_neighbors(node.p)
-            open.pop(open.index(node))
-            closed.append(node)
-            break
+    current.n = get_neighbors(current.p)
+    open.pop(open.index(current))
+    closed.append(current)
+
 
     while True:
         current = random.choice(closed)
@@ -107,7 +105,7 @@ def gen_maze(mazeNumber, openTemplate, mazeTemplate, size):
 
     img = Image.fromarray(maze, "RGB")
 
-    img.save("generatedMazes/maze{}.png".format(mazeNumber))
+    img.save("maze{}.png".format(mazeNumber))
 
 
 if __name__ == "__main__":

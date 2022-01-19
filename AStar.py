@@ -2,7 +2,8 @@ from PIL import Image
 import numpy as np
 from heapq import heapify, heappush, heappop
 import time
-import threading
+from numba import jit
+from numba.experimental import jitclass
 
 global yCord, xCord, current_X, current_Y
 cardinalCost = 10
@@ -20,7 +21,12 @@ print(array)
 
 Image.Image.close(image)
 
+spec = [
+    ()
+]
 
+
+@jitclass(spec)
 class NodeData:
     def __init__(self, position, parent, direction, f_cost, g_cost):
         self.p = position
@@ -70,6 +76,7 @@ def find_target():
 
 
 # Find H cost aka: distance to target disregarding "walls"
+@jit(nopython=True)
 def find_h_cost(x_initial, y_initial, x_final, y_final):
     x_change = x_final - x_initial
     y_change = y_final - y_initial
@@ -77,6 +84,7 @@ def find_h_cost(x_initial, y_initial, x_final, y_final):
     return cardinalCost * (x_change + y_change)  # + (diagonalCost - 2 * cardinalCost) * min(x_change, y_change)
 
 
+@jit(nopython=True)
 def find_g_cost(node_object):
     g_cost = 0
     while True:
@@ -92,6 +100,7 @@ def find_g_cost(node_object):
     return g_cost
 
 
+@jit(nopython=True)
 def find_lowest_f(node_list):
     lowest_f_cost = node_list[0].f
     test_node = node_list[0]
@@ -104,6 +113,7 @@ def find_lowest_f(node_list):
     return test_node
 
 
+@jit(nopython=True)
 def direction_of_neighbor(neighbor_node, current_node):
     current_X, current_Y = current_node.p
     if ((current_X - 1, current_Y) == neighbor_node or
@@ -128,6 +138,7 @@ neighbors = lambda x, y: [(x2, y2) for x2 in range(x - 1, x + 2)
                               (0 <= y2 <= Y))]
 
 
+@jit(nopython=True)
 def calculate_node(current_node):
     nodes = []
     current_X, current_Y = current_node.p
@@ -187,7 +198,7 @@ Closed = []  # Set of nodes already evaluated
 
 # Add start node to Open
 Open.append(NodeData(start, None, None, find_h_cost(start_X, start_Y, target_X, target_Y), 0))
-startTime = time.perf_counter()
+startTime = time.perf_counter_ns()
 
 # Run first few iterations
 mazeSolved = False
@@ -228,7 +239,7 @@ if mazeSolved is False:
                     Open.append(node)
 
 
-runtime = time.perf_counter() - startTime
+runtime = time.perf_counter_ns() - startTime
 
 image = Image.open(maze).convert("RGB")
 array = np.array(image)
@@ -251,6 +262,7 @@ while True:
         currentNode = currentNode.parent
 
 for i in range(pathLen):
+    # path coloring
     array[current.p] = [255 - (((i + 1) / (pathLen + 1)) * 255), 0, ((i + 1) / (pathLen + 1)) * 255]
     if current.p == start:
         break

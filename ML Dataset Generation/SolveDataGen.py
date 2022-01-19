@@ -147,7 +147,7 @@ def solve(mazeNumber, s):
     global Open, Closed, size, start_X, start_Y, target_X, target_Y
     size = s
     # load the image
-    image = Image.open("generatedMazes/maze{}.png".format(mazeNumber)).convert('1')
+    image = Image.open(r"C:\Users\cgbma\Documents\Untracked Files\Generated Mazes\11x11 100,000\maze{}.png".format(mazeNumber)).convert('1')
     # convert image to numpy array
     global array
     array = np.asarray(image)
@@ -234,4 +234,7 @@ def solve(mazeNumber, s):
             current = current.parent
 
     img = Image.fromarray(array, "RGB")
-    img.save("generatedMazes/solve{}.png".format(mazeNumber))
+    img.save(r"C:\Users\cgbma\Documents\Untracked Files\Generated Mazes\11x11 100,000\solve{}.png".format(mazeNumber))
+
+    solve = np.int64(np.all(array[:, :, :3] == 0, axis=2))
+    return solve.reshape(1, size ** 2)

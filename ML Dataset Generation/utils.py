@@ -2,6 +2,7 @@ import pickle
 import numpy as np
 import math
 from PIL import Image
+from numba import jit
 import pandas as pd
 import collections
 
@@ -48,7 +49,7 @@ def load_data(filename):
     return mazes, solves
 
 
-def score(y_true, y_pred):
+def score(y_true, y_pred, size):
     # Find how many nodes the path takes
     y_true = y_true.flatten()
     y_pred = y_pred.flatten()
@@ -76,9 +77,9 @@ def score(y_true, y_pred):
 
     # percent as decimal of score where 100 is amount_checked == y_path and slowly deteriorates after that
 
-    l = np.linspace(0, 1, num=(2601 - len_path))[::-1]
+    l = np.linspace(0, 1, num=(size - len_path))[::-1]
 
-    return l[nodes_checked - len_path]
+    return l[(nodes_checked - len_path)-1]
 
     # ind = np.argpartition(y_pred, -len_path)[-len_path:]
 
@@ -90,6 +91,7 @@ def ReLu(x):
     return x
 
 
+@jit(nopython=True)
 def sigmoid(x):
     sig = 1 / (1 + np.exp(-x))
     sig = np.minimum(sig, 0.9999)  # Set upper bound
@@ -103,12 +105,12 @@ def cross_entropy(y_true, y_pred):
     sum = 0
     for i in range(len(y_pred)):
         try:
-            sum += (y_true[i] * math.log10(y_pred[i])) + (1 - y_true[i]) * math.log10(1 - y_pred[i])
+            sum -= (y_true[i] * math.log10(y_pred[i])) + (1 - y_true[i]) * math.log10(1 - y_pred[i])
         except ValueError:
             print("Pred" + str(y_pred[i]))
             print("True" + str(y_true[i]))
-    return -sum
+    return sum
 
 
 if __name__ == "__main__":
-    print(score(np.asarray([1, 0, 1, 1, 0]), np.asarray([0.5, 0.2, 0.3, 0.9, 0.4])))
+    mazes, solves = load_data("data11.pickle")
