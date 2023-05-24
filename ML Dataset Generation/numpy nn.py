@@ -1,8 +1,6 @@
 from utils import *
 import numpy as np
 import time
-from numba import jit
-import matplotlib.pyplot as plt
 
 """
 w = weights, b = bias, i = input, h1 = hidden1, h2 = hidden2, o = output, s = solve
@@ -15,7 +13,7 @@ b_i_h = np.zeros((100, 1))
 b_h_o = np.zeros((121, 1))
 
 learn_rate = 0.01
-epochs = 40
+epochs = 5
 
 
 # stuff = zip(mazes, solves)
@@ -44,7 +42,7 @@ def Epoch(img, s, w_i_h, b_i_h, b_h_o, w_h_o):
 
 start_time = time.perf_counter()
 for epocho in range(epochs):
-    for index in range(len(mazes) - 1):
+    for index in range(len(mazes) - 10):
         img, s = mazes[index], solves[index]
         img.shape += (1,)
         s.shape += (1,)
@@ -56,25 +54,33 @@ for epocho in range(epochs):
 
 print(time.perf_counter() - start_time)
 
+with open("Model.pickle", "wb") as fout:
+    pickle.dump(w_i_h, fout)
+    pickle.dump(b_i_h, fout)
+    pickle.dump(b_h_o, fout)
+    pickle.dump(w_h_o,fout)
+
 # Test with maze not in training
 
-maze = mazes[-1]
-solve = solves[-1]
-maze.shape += (1,)
-solve.shape += (1,)
+# maze = mazes[-1]
+# solve = solves[-1]
+# maze.shape += (1,)
+# solve.shape += (1,)
 # Forward propagation input -> hidden
-h_pre = b_i_h + w_i_h @ maze
-h = sigmoid(h_pre)
+# h_pre = b_i_h + w_i_h @ maze
+# h = sigmoid(h_pre)
 # Forward propagation hidden -> output
-o_pre = b_h_o + w_h_o @ h
-o = sigmoid(o_pre)
+# o_pre = b_h_o + w_h_o @ h
+# o = sigmoid(o_pre)
 
-reshaped_solve = solve.reshape(11, 11) * 255
-reshaped_maze = maze.reshape(11, 11) * 255
-reshaped_o = o.reshape(11, 11) * 255
-o_img = Image.fromarray(reshaped_o)
-maze_img = Image.fromarray(reshaped_maze)
-solve_img = Image.fromarray(reshaped_solve)
-o_img.show()
-solve_img.show()
-maze_img.show()
+# reshaped_solve = solve.reshape(11, 11) * 255
+# reshaped_maze = maze.reshape(11, 11) * 255
+# reshaped_o = o.reshape(11, 11) * 255
+# o_img = Image.fromarray(reshaped_o)
+# maze_img = Image.fromarray(reshaped_maze)
+# solve_img = Image.fromarray(reshaped_solve)
+# o_img.save("temp/Output.png", "PNG")
+# solve_img.save("temp/Solve.png", "PNG")
+# maze_img.save("temp/Maze.png", "PNG")
+
+
